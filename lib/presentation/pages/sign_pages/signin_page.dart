@@ -12,15 +12,22 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  late TextEditingController _emailController; // <--- 'late' QILINDI
+  late TextEditingController _emailController;
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isPasswordVisible = false;
+
   @override
   void initState() {
     super.initState();
-    // SignUp'dan email kelgan bo'lsa, o'shani qo'yadi, bo'lmasa bo'sh bo'ladi
     _emailController = TextEditingController(text: widget.initialEmail ?? "");
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   Future<void> _signIn() async {
@@ -28,9 +35,7 @@ class _SignInPageState extends State<SignInPage> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email va parolni kiriting!")),
-      );
+      _showErrorSnackBar("Email va parolni kiriting!");
       return;
     }
 
@@ -50,112 +55,137 @@ class _SignInPageState extends State<SignInPage> {
       if (e.code == 'user-not-found')
         message = "Bunday foydalanuvchi topilmadi.";
       if (e.code == 'wrong-password') message = "Parol noto'g'ri.";
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      _showErrorSnackBar(message);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 60),
-              const Text(
-                "Xush kelibsiz! 👋",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Kvartira hisob-kitoblarini davom ettiramiz.",
-                style: TextStyle(color: Colors.grey, fontSize: 16),
-              ),
-              const SizedBox(height: 50),
-
-              // EMAIL INPUT
-              _buildInputLabel("Email manzilingiz"),
-              _buildTextField(
-                _emailController,
-                "example@mail.com",
-                Icons.alternate_email,
-              ),
-              const SizedBox(height: 25),
-
-              // PAROL INPUT
-              _buildInputLabel("Parolingiz"),
-              _buildTextField(
-                _passwordController,
-                "••••••••",
-                Icons.lock_open_rounded,
-                isPassword: true,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    "Parolni unutdingizmi?",
-                    style: TextStyle(color: Colors.grey),
-                  ),
+      // TO'Q VA KO'RKAM FON
+      backgroundColor: const Color(0xFF0F172A),
+      body: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [const Color(0xFF1E293B), const Color(0xFF0F172A)],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 250),
+                // EMAIL INPUT
+                _buildInputLabel("Email manzilingiz"),
+                _buildTextField(
+                  _emailController,
+                  "example@mail.com",
+                  Icons.alternate_email,
                 ),
-              ),
-              const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _signIn,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E1E1E),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          "Kirish",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                const SizedBox(height: 25),
+
+                // PAROL INPUT
+                _buildInputLabel("Parolingiz"),
+                _buildTextField(
+                  _passwordController,
+                  "••••••••",
+                  Icons.lock_outline_rounded,
+                  isPassword: true,
                 ),
-              ),
-              const SizedBox(height: 25),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Akkauntingiz yo'qmi?",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.push(PlatformRoutes.signUpPage.route);
-                    },
-                    child: const Text(
-                      "Ro'yxatdan o'tish",
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Parolni unutdingizmi?",
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: Colors.blueGrey[300],
+                        fontSize: 13,
                       ),
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 20),
+
+                // KIRISH TUGMASI - KO'RKAM VA YORQIN
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _signIn,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 8,
+                      shadowColor: Colors.blueAccent.withOpacity(0.5),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            "Tizimga kirish",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // RO'YXATDAN O'TISH QISMI
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Akkauntingiz yo'qmi?",
+                        style: TextStyle(color: Colors.blueGrey[200]),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            context.push(PlatformRoutes.signUpPage.route),
+                        child: const Text(
+                          "Ro'yxatdan o'tish",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -164,10 +194,14 @@ class _SignInPageState extends State<SignInPage> {
 
   Widget _buildInputLabel(String label) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8, left: 4),
+      padding: const EdgeInsets.only(bottom: 10, left: 4),
       child: Text(
         label,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        style: const TextStyle(
+          color: Colors.white70,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
       ),
     );
   }
@@ -180,28 +214,27 @@ class _SignInPageState extends State<SignInPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(15),
+        color: const Color(0xFF1E293B), // TextField foni
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: TextField(
         controller: controller,
-        // PAROL BO'LSA VA KO'ZCHA BOSILMAGAN BO'LSA YASHIRADI
+        style: const TextStyle(color: Colors.white),
         obscureText: isPassword ? !_isPasswordVisible : false,
-        // TELEFON XOTIRASIDAN EMAIL/PAROL TAKLIF QILISH
-        autofillHints: isPassword
-            ? [AutofillHints.password]
-            : [AutofillHints.email],
+        cursorColor: Colors.blueAccent,
         decoration: InputDecoration(
           hintText: hint,
-          prefixIcon: Icon(icon, color: Colors.black54),
-          // KO'ZCHA TUGMASI FAQAT PAROL UCHUN CHIQADI
+          hintStyle: TextStyle(color: Colors.blueGrey[400], fontSize: 15),
+          prefixIcon: Icon(icon, color: Colors.blueAccent, size: 22),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
                     _isPasswordVisible
                         ? Icons.visibility
                         : Icons.visibility_off,
-                    color: Colors.black54,
+                    color: Colors.blueGrey[400],
+                    size: 20,
                   ),
                   onPressed: () =>
                       setState(() => _isPasswordVisible = !_isPasswordVisible),
@@ -210,7 +243,7 @@ class _SignInPageState extends State<SignInPage> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             vertical: 18,
-            horizontal: 15,
+            horizontal: 20,
           ),
         ),
       ),
