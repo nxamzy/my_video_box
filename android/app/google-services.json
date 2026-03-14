@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "223726604961",
+    "project_id": "folderapp-ee774",
+    "storage_bucket": "folderapp-ee774.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223726604961:android:d95c5b4024a5636c8f56e0",
+        "android_client_info": {
+          "package_name": "com.example.my_folder_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhk1wp9nE9h2_qz7dZeIIS3KK3TW6nRDk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
