@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_folder_app/presentation/pages/add_pages/add_video_page.dart';
+import 'package:my_folder_app/presentation/pages/add/add_video_page.dart';
 import 'package:my_folder_app/presentation/pages/library/library_page.dart';
 import 'package:my_folder_app/presentation/pages/profile/profile_page.dart';
 import 'package:my_folder_app/presentation/pages/topic/topic_page.dart';
